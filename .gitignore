@@ -1,0 +1,41 @@
+# IDE 관련 파일들
+*.idea/
+*.iml
+*.vscode/
+
+# 빌드 파일
+target/
+*.jar
+*.war
+*.ear
+
+# Gradle 관련
+.gradle/
+build/
+
+# Maven 관련
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+# IntelliJ 관련
+.idea/
+*.iml
+
+# 운영 체제 관련
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log
+
+# 임시 파일
+*.bak
+*.swp
+*.tmp
+
+# 환경 설정 파일
+application*.properties
+HELP.md
