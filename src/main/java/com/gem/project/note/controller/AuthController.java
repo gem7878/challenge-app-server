@@ -16,6 +16,7 @@ import com.gem.project.note.exception.ErrorCode;
 import com.gem.project.note.service.AuthService;
 import com.gem.project.note.service.RefreshTokenService;
 
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +32,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -42,13 +45,13 @@ public class AuthController {
     
     @Operation(summary = "회원 가입")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "회원 가입 성공", 
+        @ApiResponse(responseCode = "201", description = "[CREATED] 회원가입 성공", 
             content = @Content(mediaType = "application/json", 
                 schema = @Schema(implementation = ApiResponseDto.class))),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+        @ApiResponse(responseCode = "409", description = "[DUPLICATE_RESOURCE] 중복된 값 존재",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "500", description = "서버 오류",
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+        @ApiResponse(responseCode = "500", description = "[INTERNAL_SERVER_ERROR] 서버 오류", 
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseDto<MemberResponseDto>> signup(@Valid @RequestBody MemberCreateRequest request) {
@@ -59,14 +62,16 @@ public class AuthController {
 
     @Operation(summary = "로그인")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "로그인 성공", 
+        @ApiResponse(responseCode = "200", description = "[SUCCESS] 로그인 성공", 
             content = @Content(mediaType = "application/json", 
                 schema = @Schema(implementation = ApiResponseDto.class))),
-        @ApiResponse(responseCode = "400", description = "입력값 오류", 
+        @ApiResponse(responseCode = "400", description = "[RESOURCE_NOT_FOUND] 데이터 찾을 수 없음", 
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponseDto.class),
+                examples = @ExampleObject(value = "이메일 또는 비밀번호가 잘못 되었습니다."))),
+        @ApiResponse(responseCode = "401", description = "[UNAUTHORIZED] 인증 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "401", description = "인증 실패", 
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "500", description = "서버 오류", 
+        @ApiResponse(responseCode = "500", description = "[INTERNAL_SERVER_ERROR] 서버 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/login")
@@ -76,16 +81,15 @@ public class AuthController {
     }
     
 
-    @Operation(summary = "이메일 중복 확인", description = "exists_email : false(사용 가능함)")
+    @Operation(summary = "이메일 중복 확인", description = "exists_email : false(사용 가능하다는 뜻)")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "exists_email : false(사용 가능함)", 
+        @ApiResponse(responseCode = "200", description = "exists_email : false(사용 가능하다는 뜻)", 
             content = @Content(mediaType = "application/json", 
-                schema = @Schema(implementation = ApiResponseDto.class))),
-        @ApiResponse(responseCode = "400", description = "입력값 오류", 
+                schema = @Schema(implementation = ApiResponseDto.class),
+                examples = @ExampleObject(value = "exists_email : false // 사용 가능하다는 뜻"))),
+        @ApiResponse(responseCode = "400", description = "[INVALID_INPUT_VALUE] 입력값 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "409", description = "중복 오류", 
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "500", description = "서버 오류", 
+        @ApiResponse(responseCode = "500", description = "[INTERNAL_SERVER_ERROR] 서버 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/email")
@@ -94,16 +98,15 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponseDto.success(ErrorCode.SUCCESS, "사용 가능한 이메일입니다.", emailResponse));
     }
 
-    @Operation(summary = "닉네임 중복 확인", description = "success : true, exists_nickname : false (사용 가능함)")
+    @Operation(summary = "닉네임 중복 확인", description = "exists_nickname : false (사용 가능하다는 뜻)")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "success : true, exists_nickname : false (사용 가능함)", 
+        @ApiResponse(responseCode = "200", description = "[SUCCESS] 확인 성공, exists_nickname : false (사용 가능하다는 뜻)", 
             content = @Content(mediaType = "application/json", 
-                schema = @Schema(implementation = ApiResponseDto.class))),
-        @ApiResponse(responseCode = "400", description = "입력값 오류", 
+                schema = @Schema(implementation = ApiResponseDto.class),
+                examples = @ExampleObject(value = "exists_nickname: false // 사용 가능하다는 뜻"))),
+        @ApiResponse(responseCode = "400", description = "[INVALID_INPUT_VALUE] 입력값 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "409", description = "중복 오류", 
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "500", description = "서버 오류", 
+        @ApiResponse(responseCode = "500", description = "[INTERNAL_SERVER_ERROR] 서버 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/nickname")
@@ -134,15 +137,15 @@ public class AuthController {
     }*/
 
     
-    @Operation(summary = "Access Token 재발급", description = "Access Token 재발급 API")
+    @Operation(summary = "Access Token 재발급", description = "Access Token 재발급")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공", 
+        @ApiResponse(responseCode = "200", description = "[SUCCESS] Access Token 발급 성공", 
             content = @Content(mediaType = "application/json", 
                 schema = @Schema(implementation = ApiResponseDto.class))),
-        @ApiResponse(responseCode = "401", description = "인증 실패",
+        @ApiResponse(responseCode = "401", description = "[UNAUTHORIZED] 인증 오류", 
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "500", description = "서버 오류",
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+        @ApiResponse(responseCode = "500", description = "[INTERNAL_SERVER_ERROR] 서버 오류", 
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponseDto<JwtResponseDto>> refreshToken(@RequestBody JwtRequestDto request) throws Exception {
