@@ -1,0 +1,25 @@
+-- 문화예술행사 테이블 생성
+CREATE TABLE cultural_events (
+    id BIGSERIAL PRIMARY KEY,
+    category VARCHAR(10),
+    district VARCHAR(5),
+    event_name VARCHAR(255),
+    venue VARCHAR(100),
+    organization_name VARCHAR(50),
+    target_audience VARCHAR(50),
+    admission_fee VARCHAR(25),
+    performer_info VARCHAR(50),
+    program_description TEXT,
+    additional_info TEXT,
+    website_url TEXT,
+    thumbnail_url TEXT,
+    application_date TIMESTAMP,
+    applicant_type VARCHAR(50),
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    theme_category VARCHAR(50),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    is_free VARCHAR(2),
+    portal_detail_url TEXT
+);
